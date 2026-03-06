@@ -15,6 +15,9 @@ const buttonVariants = cva(
         secondary: "bg-secondary text-secondary-foreground hover:bg-secondary/80",
         ghost: "hover:bg-accent hover:text-accent-foreground",
         link: "text-primary underline-offset-4 hover:underline",
+        prisma: "bg-gradient-prisma text-primary-foreground hover:opacity-90 shadow-prisma",
+        sell: "bg-prisma-red text-primary-foreground hover:bg-prisma-red/90 shadow-glow-sell",
+        buy: "bg-prisma-green text-primary-foreground hover:bg-prisma-green/90 shadow-glow-buy",
       },
       size: {
         default: "h-10 px-4 py-2",
