@@ -8,7 +8,7 @@ import PrismaIcon from '@/components/PrismaIcon';
 import { supabase } from '@/integrations/supabase/client';
 
 interface AnalysisResult {
-  recommendation: 'BUY' | 'SELL' | 'HOLD';
+  recommendation: 'BUY' | 'SELL' | 'HOLD' | 'NEUTRO';
   confidence: number;
   reason: string;
   trend: string;
