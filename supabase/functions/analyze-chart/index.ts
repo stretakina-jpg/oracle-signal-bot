@@ -19,42 +19,53 @@ serve(async (req) => {
 
     const modeText = isInverted ? "INVERTIDO" : "PADRÃO";
 
-    const prompt = `Analise este gráfico de trading no nascimento de uma nova vela de 1 minuto, foco em opções binárias (Pocket Option).
+    const prompt = `Você é um robô de análise técnica especialista na ESTRATÉGIA DIAMANTE para opções binárias (Pocket Option), operando no timeframe M1.
 
-**ANÁLISE ZIG ZAG (PRIORIDADE MÁXIMA):**
-1. Identifique o padrão Zig Zag no gráfico:
-   - Se o Zig Zag está ACIMA do preço (topo formado): normalmente as velas DESCEM → tendência de SELL
-   - Se o Zig Zag está ABAIXO do preço (fundo formado): normalmente as velas SOBEM → tendência de BUY
-2. Determine o ALVO do preço baseado no Zig Zag:
-   - O preço pode ir buscar um SUPORTE (alvo de baixa)
-   - O preço pode ir buscar uma RESISTÊNCIA (alvo de alta)
-   - Identifique qual nível o preço está buscando no momento
+**ESTRATÉGIA DIAMANTE (LÓGICA PRINCIPAL):**
+O Padrão Diamante é uma formação gráfica de REVERSÃO que se forma quando o preço cria:
+1. FASE DE EXPANSÃO: Topos cada vez mais altos e fundos cada vez mais baixos (alargamento)
+2. FASE DE CONTRAÇÃO: Topos cada vez mais baixos e fundos cada vez mais altos (estreitamento)
+3. O formato final lembra um LOSANGO/DIAMANTE no gráfico
 
-**CONTEXTO DE VELAS PASSADAS:**
-1. Analise o histórico das últimas velas: corpo, pavios, padrões (Martelo, Engolfo, Doji, Pin Bar, etc.)
-2. Identifique o que cada vela passada INDICA para a vela atual
-3. Avalie a sequência: continuidade ou reversão?
-4. Identifique a VELA RAIZ (origem do movimento) e sua influência
+**COMO IDENTIFICAR E OPERAR:**
+- DIAMANTE DE TOPO (após tendência de alta): O preço forma o diamante no topo → REVERSÃO para BAIXA → sinal de SELL
+- DIAMANTE DE FUNDO (após tendência de baixa): O preço forma o diamante no fundo → REVERSÃO para ALTA → sinal de BUY
+- O ROMPIMENTO (breakout) da borda do diamante CONFIRMA a direção
+- Se rompe para BAIXO = SELL confirmado
+- Se rompe para CIMA = BUY confirmado
+- Quanto mais simétrico o diamante, mais forte o sinal
 
-**ANÁLISE COMPLETA:**
-1. **Price Action:** Corpo da vela atual, pavios, padrão que ela forma
-2. **Tendência Zig Zag:** Direção indicada pelo zig zag (acima = queda, abaixo = alta)
-3. **Suporte/Resistência:** Níveis que o preço está buscando como alvo
-4. **Figuras Gráficas:** Topos/fundos duplos, triângulos, bandeiras
-5. **Fluxo de Velas:** Sequência e força das velas anteriores direcionando a atual
-6. **Lógica do Preço:** Momentum, velocidade, rejeições
+**ANÁLISE ZIG ZAG (CONFIRMA O DIAMANTE):**
+1. Zig Zag ACIMA do preço (topo formado): velas tendem a DESCER → reforça SELL
+2. Zig Zag ABAIXO do preço (fundo formado): velas tendem a SUBIR → reforça BUY
+3. Identifique o ALVO do preço:
+   - Buscando SUPORTE (alvo de baixa)
+   - Buscando RESISTÊNCIA (alvo de alta)
 
-**REGRAS DE DECISÃO:**
+**FLUXO DE VELAS E VELA RAIZ:**
+1. Identifique a VELA RAIZ — a vela que originou o movimento atual
+2. Analise o histórico: corpo, pavios, padrões (Martelo, Engolfo, Doji, Pin Bar, Estrela Cadente)
+3. Cada vela passada INDICA algo para a vela atual — leia a sequência
+4. Avalie: o fluxo é de CONTINUIDADE ou REVERSÃO?
+5. Verifique se o fluxo concorda com o padrão Diamante
+
+**LÓGICA DO PREÇO:**
+1. Momentum: o preço está acelerando ou desacelerando?
+2. Rejeições: há pavios longos rejeitando níveis?
+3. Velocidade das velas: velas rápidas = força, velas lentas = indecisão
+4. Suporte/Resistência: níveis que o preço respeita ou rompe
+
+**REGRAS DE DECISÃO DIAMANTE:**
 - Modo ${modeText}
 - Se PADRÃO: Velas VERDES = BUY, Velas VERMELHAS = SELL
 - Se INVERTIDO: VERDE = SELL, VERMELHO = BUY
-- O sinal do Zig Zag deve CONCORDAR com o Price Action para gerar sinal
-- Se NÃO tiver certeza ou os sinais forem conflitantes → retorne "NEUTRO" (não HOLD)
-- Confiança acima de 80 APENAS quando Zig Zag + Price Action + Fluxo de Velas concordam
-- Descreva na tendência o alvo do preço (ex: "Buscando suporte em X" ou "Buscando resistência em Y")
+- O Diamante + Zig Zag + Fluxo de Velas devem CONCORDAR para gerar sinal
+- Se NÃO tiver certeza, sinais conflitantes, ou sem padrão claro → "NEUTRO"
+- Confiança acima de 80 APENAS quando: Diamante confirmado + Zig Zag concorda + Fluxo de Velas concorda
+- Na tendência, descreva: tipo do diamante (topo/fundo), direção do rompimento, e alvo do preço
 
 Responda APENAS com JSON válido no formato:
-{"recommendation": "BUY" ou "SELL" ou "NEUTRO", "confidence": número 0-100, "reason": "razão curta incluindo análise zig zag", "trend": "descrição da tendência e alvo do preço"}`;
+{"recommendation": "BUY" ou "SELL" ou "NEUTRO", "confidence": número 0-100, "reason": "razão curta com análise diamante + zig zag", "trend": "tipo do diamante, direção e alvo do preço (suporte/resistência)"}`;
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
