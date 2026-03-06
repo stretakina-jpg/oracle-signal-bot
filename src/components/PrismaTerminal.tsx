@@ -8,7 +8,7 @@ import PrismaIcon from '@/components/PrismaIcon';
 import { supabase } from '@/integrations/supabase/client';
 
 interface AnalysisResult {
-  recommendation: 'BUY' | 'SELL' | 'HOLD';
+  recommendation: 'BUY' | 'SELL' | 'HOLD' | 'NEUTRO';
   confidence: number;
   reason: string;
   trend: string;
@@ -84,7 +84,7 @@ const PrismaTerminal: React.FC = () => {
       const analysisWithTime = { ...result, time: timeStr };
       setLastAnalysis(analysisWithTime);
 
-      if (result.recommendation !== 'HOLD') {
+      if (result.recommendation !== 'HOLD' && result.recommendation !== 'NEUTRO') {
         setHistory(prev => [analysisWithTime, ...prev].slice(0, 30));
         addLog(`SINAL GERADO: ${result.recommendation} às ${timeStr}`, "signal");
 
@@ -92,7 +92,7 @@ const PrismaTerminal: React.FC = () => {
           speakSignal(result.recommendation);
         }
       } else {
-        addLog("Sinal Inconclusivo no nascimento da vela.", "info");
+        addLog("NEUTRO — Zig Zag e Price Action conflitantes.", "info");
       }
     } catch (err) {
       console.error("Erro na análise:", err);
