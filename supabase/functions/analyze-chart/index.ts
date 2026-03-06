@@ -21,33 +21,40 @@ serve(async (req) => {
 
     const prompt = `Analise este gráfico de trading no nascimento de uma nova vela de 1 minuto, foco em opções binárias (Pocket Option).
 
-**Análise Requerida:**
-1. **Price Action:** Corpo da vela, pavios, padrões (Martelo, Engolfo, Doji, Pin Bar, etc.)
-2. **Tendência:** Alta, baixa ou lateral no contexto imediato
-3. **Suporte/Resistência:** Níveis próximos e reação do preço
-4. **Figuras Gráficas:** Topos/fundos duplos, triângulos, bandeiras, etc.
-5. **Fluxo de Velas:** Sequência de velas anteriores, padrão de continuidade ou reversão
-6. **Vela Raiz:** Identificar a vela raiz (origem do movimento) e sua influência no sinal
-7. **Lógica do Preço:** Momentum, velocidade do movimento, rejeições de preço
+**ANÁLISE ZIG ZAG (PRIORIDADE MÁXIMA):**
+1. Identifique o padrão Zig Zag no gráfico:
+   - Se o Zig Zag está ACIMA do preço (topo formado): normalmente as velas DESCEM → tendência de SELL
+   - Se o Zig Zag está ABAIXO do preço (fundo formado): normalmente as velas SOBEM → tendência de BUY
+2. Determine o ALVO do preço baseado no Zig Zag:
+   - O preço pode ir buscar um SUPORTE (alvo de baixa)
+   - O preço pode ir buscar uma RESISTÊNCIA (alvo de alta)
+   - Identifique qual nível o preço está buscando no momento
 
-**Filtros Avançados:**
-- Verificar confluência de múltiplos sinais antes de gerar recomendação
-- Analisar volume implícito pelo tamanho dos corpos e pavios
-- Considerar contexto de mercado (tendência macro vs micro)
-- Identificar armadilhas (bull trap / bear trap)
-- Avaliar força da vela atual vs velas anteriores
+**CONTEXTO DE VELAS PASSADAS:**
+1. Analise o histórico das últimas velas: corpo, pavios, padrões (Martelo, Engolfo, Doji, Pin Bar, etc.)
+2. Identifique o que cada vela passada INDICA para a vela atual
+3. Avalie a sequência: continuidade ou reversão?
+4. Identifique a VELA RAIZ (origem do movimento) e sua influência
 
-**Regras de Decisão:**
+**ANÁLISE COMPLETA:**
+1. **Price Action:** Corpo da vela atual, pavios, padrão que ela forma
+2. **Tendência Zig Zag:** Direção indicada pelo zig zag (acima = queda, abaixo = alta)
+3. **Suporte/Resistência:** Níveis que o preço está buscando como alvo
+4. **Figuras Gráficas:** Topos/fundos duplos, triângulos, bandeiras
+5. **Fluxo de Velas:** Sequência e força das velas anteriores direcionando a atual
+6. **Lógica do Preço:** Momentum, velocidade, rejeições
+
+**REGRAS DE DECISÃO:**
 - Modo ${modeText}
 - Se PADRÃO: Velas VERDES = BUY, Velas VERMELHAS = SELL
 - Se INVERTIDO: VERDE = SELL, VERMELHO = BUY
-- Confiança baseada na clareza e confluência dos sinais
-- Se não houver sinal claro, retorne HOLD
-- Apenas sinais com alta probabilidade devem ter confiança acima de 80
+- O sinal do Zig Zag deve CONCORDAR com o Price Action para gerar sinal
+- Se NÃO tiver certeza ou os sinais forem conflitantes → retorne "NEUTRO" (não HOLD)
+- Confiança acima de 80 APENAS quando Zig Zag + Price Action + Fluxo de Velas concordam
+- Descreva na tendência o alvo do preço (ex: "Buscando suporte em X" ou "Buscando resistência em Y")
 
 Responda APENAS com JSON válido no formato:
-{"recommendation": "BUY" ou "SELL" ou "HOLD", "confidence": número 0-100, "reason": "razão curta", "trend": "descrição da tendência"}`;
-
+{"recommendation": "BUY" ou "SELL" ou "NEUTRO", "confidence": número 0-100, "reason": "razão curta incluindo análise zig zag", "trend": "descrição da tendência e alvo do preço"}`;
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
