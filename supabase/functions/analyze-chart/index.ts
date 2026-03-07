@@ -21,51 +21,46 @@ serve(async (req) => {
 
     const prompt = `Você é um robô de análise técnica especialista na ESTRATÉGIA DIAMANTE para opções binárias (Pocket Option), operando no timeframe M1.
 
-**ESTRATÉGIA DIAMANTE (LÓGICA PRINCIPAL):**
-O Padrão Diamante é uma formação gráfica de REVERSÃO que se forma quando o preço cria:
-1. FASE DE EXPANSÃO: Topos cada vez mais altos e fundos cada vez mais baixos (alargamento)
-2. FASE DE CONTRAÇÃO: Topos cada vez mais baixos e fundos cada vez mais altos (estreitamento)
-3. O formato final lembra um LOSANGO/DIAMANTE no gráfico
+**LEITURA OBRIGATÓRIA DA TELA:**
+1. IDENTIFIQUE O ATIVO: Leia o nome/símbolo do ativo que aparece no gráfico (ex: EUR/USD, BTC/USD, USD/JPY, etc.)
+2. IDENTIFIQUE O PREÇO ATUAL: Leia o preço real do ativo exibido no gráfico
+3. LEIA O INDICADOR WILLIAMS %R (Período 7): É uma linha TURQUESA/CIANO no painel inferior do gráfico. Identifique se a linha está APONTANDO PARA CIMA ou PARA BAIXO nas últimas barras
+4. LEIA O INDICADOR MOMENTUM (Período 5): É outra linha TURQUESA/AZUL TURQUESA em outro painel do gráfico. Identifique se a linha está APONTANDO PARA CIMA ou PARA BAIXO nas últimas barras
 
-**COMO IDENTIFICAR E OPERAR:**
-- DIAMANTE DE TOPO (após tendência de alta): O preço forma o diamante no topo → REVERSÃO para BAIXA → sinal de SELL
-- DIAMANTE DE FUNDO (após tendência de baixa): O preço forma o diamante no fundo → REVERSÃO para ALTA → sinal de BUY
-- O ROMPIMENTO (breakout) da borda do diamante CONFIRMA a direção
-- Se rompe para BAIXO = SELL confirmado
-- Se rompe para CIMA = BUY confirmado
-- Quanto mais simétrico o diamante, mais forte o sinal
+**REGRA DOS INDICADORES (PRIORIDADE MÁXIMA):**
+- Para COMPRA (BUY): Williams %R E Momentum DEVEM estar AMBOS apontando para CIMA
+- Para VENDA (SELL): Williams %R E Momentum DEVEM estar AMBOS apontando para BAIXO
+- Se os dois indicadores apontam para DIREÇÕES DIFERENTES → "NEUTRO" (conflito de indicadores)
+- Esta regra tem PRIORIDADE sobre todas as outras
 
-**ANÁLISE ZIG ZAG (CONFIRMA O DIAMANTE):**
+**ESTRATÉGIA DIAMANTE (CONFIRMAÇÃO):**
+O Padrão Diamante é uma formação gráfica de REVERSÃO:
+1. FASE DE EXPANSÃO: Topos mais altos e fundos mais baixos (alargamento)
+2. FASE DE CONTRAÇÃO: Topos mais baixos e fundos mais altos (estreitamento)
+3. DIAMANTE DE TOPO (após alta) → SELL | DIAMANTE DE FUNDO (após baixa) → BUY
+4. O rompimento da borda confirma a direção
+
+**ANÁLISE ZIG ZAG (CONFIRMA):**
 1. Zig Zag ACIMA do preço (topo formado): velas tendem a DESCER → reforça SELL
 2. Zig Zag ABAIXO do preço (fundo formado): velas tendem a SUBIR → reforça BUY
-3. Identifique o ALVO do preço:
-   - Buscando SUPORTE (alvo de baixa)
-   - Buscando RESISTÊNCIA (alvo de alta)
+3. Identifique o ALVO: buscando SUPORTE (baixa) ou RESISTÊNCIA (alta)
 
 **FLUXO DE VELAS E VELA RAIZ:**
 1. Identifique a VELA RAIZ — a vela que originou o movimento atual
-2. Analise o histórico: corpo, pavios, padrões (Martelo, Engolfo, Doji, Pin Bar, Estrela Cadente)
-3. Cada vela passada INDICA algo para a vela atual — leia a sequência
-4. Avalie: o fluxo é de CONTINUIDADE ou REVERSÃO?
-5. Verifique se o fluxo concorda com o padrão Diamante
+2. Analise padrões: Martelo, Engolfo, Doji, Pin Bar, Estrela Cadente
+3. Avalie: CONTINUIDADE ou REVERSÃO?
 
-**LÓGICA DO PREÇO:**
-1. Momentum: o preço está acelerando ou desacelerando?
-2. Rejeições: há pavios longos rejeitando níveis?
-3. Velocidade das velas: velas rápidas = força, velas lentas = indecisão
-4. Suporte/Resistência: níveis que o preço respeita ou rompe
-
-**REGRAS DE DECISÃO DIAMANTE:**
+**REGRAS FINAIS DE DECISÃO:**
 - Modo ${modeText}
 - Se PADRÃO: Velas VERDES = BUY, Velas VERMELHAS = SELL
 - Se INVERTIDO: VERDE = SELL, VERMELHO = BUY
-- O Diamante + Zig Zag + Fluxo de Velas devem CONCORDAR para gerar sinal
-- Se NÃO tiver certeza, sinais conflitantes, ou sem padrão claro → "NEUTRO"
-- Confiança acima de 80 APENAS quando: Diamante confirmado + Zig Zag concorda + Fluxo de Velas concorda
-- Na tendência, descreva: tipo do diamante (topo/fundo), direção do rompimento, e alvo do preço
+- O sinal SÓ é gerado se: Williams %R + Momentum concordam na direção + Diamante/ZigZag confirmam
+- Se NÃO tiver certeza ou indicadores conflitantes → "NEUTRO"
+- Confiança acima de 80 APENAS quando TODOS os fatores concordam (indicadores + diamante + zigzag + velas)
 
 Responda APENAS com JSON válido no formato:
-{"recommendation": "BUY" ou "SELL" ou "NEUTRO", "confidence": número 0-100, "reason": "razão curta com análise diamante + zig zag", "trend": "tipo do diamante, direção e alvo do preço (suporte/resistência)"}`;
+{"recommendation": "BUY" ou "SELL" ou "NEUTRO", "confidence": número 0-100, "reason": "razão curta com indicadores + diamante", "trend": "direção Williams/Momentum, alvo do preço (suporte/resistência)", "asset": "símbolo do ativo lido na tela", "price": "preço atual lido na tela", "williams_direction": "UP ou DOWN ou UNCLEAR", "momentum_direction": "UP ou DOWN ou UNCLEAR"}`;
+
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
       headers: {
