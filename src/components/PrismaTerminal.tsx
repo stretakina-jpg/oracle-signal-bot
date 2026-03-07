@@ -287,10 +287,26 @@ const PrismaTerminal: React.FC = () => {
 
             {lastAnalysis ? (
               <div>
+                {/* Asset & Price */}
+                {(lastAnalysis.asset || lastAnalysis.price) && (
+                  <div className="flex items-center gap-3 mb-3">
+                    {lastAnalysis.asset && (
+                      <span className="text-xs font-mono bg-muted px-2 py-1 rounded-lg border border-border text-foreground font-semibold">
+                        {lastAnalysis.asset}
+                      </span>
+                    )}
+                    {lastAnalysis.price && (
+                      <span className="text-xs font-mono text-prisma-cyan">
+                        {lastAnalysis.price}
+                      </span>
+                    )}
+                  </div>
+                )}
+
                 <div className="flex items-center gap-3 mb-3">
                   <span
                     className={`text-3xl font-bold font-mono ${
-                      lastAnalysis.recommendation === 'BUY' ? 'text-prisma-green' : 'text-prisma-red'
+                      lastAnalysis.recommendation === 'BUY' ? 'text-prisma-green' : lastAnalysis.recommendation === 'SELL' ? 'text-prisma-red' : 'text-muted-foreground'
                     }`}
                   >
                     {lastAnalysis.recommendation}
@@ -303,6 +319,27 @@ const PrismaTerminal: React.FC = () => {
                     {lastAnalysis.confidence}% CONFIANÇA
                   </span>
                 </div>
+
+                {/* Indicators */}
+                <div className="grid grid-cols-2 gap-2 mb-3">
+                  <div className="bg-muted/50 rounded-lg p-2 border border-border">
+                    <p className="text-[10px] text-muted-foreground mb-0.5">Williams %R (7)</p>
+                    <p className={`text-xs font-bold font-mono ${
+                      lastAnalysis.williams_direction === 'UP' ? 'text-prisma-green' : lastAnalysis.williams_direction === 'DOWN' ? 'text-prisma-red' : 'text-muted-foreground'
+                    }`}>
+                      {lastAnalysis.williams_direction === 'UP' ? '↑ SUBINDO' : lastAnalysis.williams_direction === 'DOWN' ? '↓ DESCENDO' : '— INDEFINIDO'}
+                    </p>
+                  </div>
+                  <div className="bg-muted/50 rounded-lg p-2 border border-border">
+                    <p className="text-[10px] text-muted-foreground mb-0.5">Momentum (5)</p>
+                    <p className={`text-xs font-bold font-mono ${
+                      lastAnalysis.momentum_direction === 'UP' ? 'text-prisma-green' : lastAnalysis.momentum_direction === 'DOWN' ? 'text-prisma-red' : 'text-muted-foreground'
+                    }`}>
+                      {lastAnalysis.momentum_direction === 'UP' ? '↑ SUBINDO' : lastAnalysis.momentum_direction === 'DOWN' ? '↓ DESCENDO' : '— INDEFINIDO'}
+                    </p>
+                  </div>
+                </div>
+
                 <div className="bg-muted/50 rounded-lg p-2 border border-border">
                   <p className="text-[10px] text-muted-foreground mb-0.5">Tendência</p>
                   <p className="text-xs text-foreground">{lastAnalysis.trend}</p>
