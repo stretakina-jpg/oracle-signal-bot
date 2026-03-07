@@ -17,6 +17,7 @@ interface AnalysisResult {
   price?: string;
   williams_direction?: string;
   momentum_direction?: string;
+  result?: 'WIN' | 'LOSS' | null;
 }
 
 interface LogEntry {
@@ -166,12 +167,11 @@ const PrismaTerminal: React.FC = () => {
             <PrismaIcon size={40} />
             <div>
               <div className="flex items-center gap-2">
-                <h1 className="text-xl font-bold text-gradient-prisma">PRISMA ORACLE 2.0</h1>
+                <h1 className="text-xl font-bold text-gradient-prisma">PRISMA IA</h1>
                 <span className="text-[10px] font-mono bg-primary/20 border border-primary/30 text-primary-foreground px-2 py-0.5 rounded-full">
                   M1 Sinc
                 </span>
               </div>
-              <p className="text-xs text-muted-foreground">Sincronizado com nascimento de velas</p>
             </div>
           </div>
 
@@ -392,16 +392,40 @@ const PrismaTerminal: React.FC = () => {
                           : 'bg-prisma-red/20 text-prisma-red'
                       }`}
                     >
-                      {h.recommendation === 'BUY' ? 'B' : 'S'}
+                      {h.recommendation === 'BUY' ? '↑' : '↓'}
                     </span>
                     <div>
-                      <p className="text-xs font-semibold text-foreground">{h.recommendation}</p>
-                      <p className="text-[10px] text-muted-foreground font-mono">{h.time}</p>
+                      <p className="text-xs font-semibold text-foreground">
+                        {h.asset || '—'} <span className={h.recommendation === 'BUY' ? 'text-prisma-green' : 'text-prisma-red'}>{h.recommendation}</span>
+                      </p>
+                      <p className="text-[10px] text-muted-foreground font-mono">{h.time} · {h.confidence}%</p>
                     </div>
                   </div>
-                  <div className="text-right">
-                    <p className="text-xs font-bold text-foreground">{h.confidence}%</p>
-                    <p className="text-[10px] text-muted-foreground">Prob.</p>
+                  <div className="flex items-center gap-1.5">
+                    <button
+                      onClick={() => {
+                        setHistory(prev => prev.map((item, idx) => idx === i ? { ...item, result: 'WIN' } : item));
+                      }}
+                      className={`text-[10px] font-bold px-2 py-1 rounded border transition-all font-mono ${
+                        h.result === 'WIN'
+                          ? 'bg-prisma-green/20 border-prisma-green/50 text-prisma-green'
+                          : 'bg-muted border-border text-muted-foreground hover:border-prisma-green/30'
+                      }`}
+                    >
+                      WIN
+                    </button>
+                    <button
+                      onClick={() => {
+                        setHistory(prev => prev.map((item, idx) => idx === i ? { ...item, result: 'LOSS' } : item));
+                      }}
+                      className={`text-[10px] font-bold px-2 py-1 rounded border transition-all font-mono ${
+                        h.result === 'LOSS'
+                          ? 'bg-prisma-red/20 border-prisma-red/50 text-prisma-red'
+                          : 'bg-muted border-border text-muted-foreground hover:border-prisma-red/30'
+                      }`}
+                    >
+                      LOSS
+                    </button>
                   </div>
                 </div>
               ))}
