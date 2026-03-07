@@ -13,6 +13,10 @@ interface AnalysisResult {
   reason: string;
   trend: string;
   time: string;
+  asset?: string;
+  price?: string;
+  williams_direction?: string;
+  momentum_direction?: string;
 }
 
 interface LogEntry {
