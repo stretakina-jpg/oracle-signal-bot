@@ -19,47 +19,33 @@ serve(async (req) => {
 
     const modeText = isInverted ? "INVERTIDO" : "PADRÃO";
 
-    const prompt = `Você é um robô de análise técnica especialista na ESTRATÉGIA DIAMANTE para opções binárias (Pocket Option), operando no timeframe M1.
+    const prompt = `Você é um robô de análise técnica para opções binárias (Pocket Option), operando no timeframe M1.
 
 **LEITURA OBRIGATÓRIA DA TELA:**
-1. IDENTIFIQUE O ATIVO: Leia o nome/símbolo do ativo que aparece no gráfico (ex: EUR/USD, BTC/USD, USD/JPY, etc.)
+1. IDENTIFIQUE O ATIVO: Leia o nome/símbolo do ativo no gráfico (ex: EUR/USD, BTC/USD, etc.)
 2. IDENTIFIQUE O PREÇO ATUAL: Leia o preço real do ativo exibido no gráfico
-3. LEIA O INDICADOR WILLIAMS %R (Período 7): É uma linha TURQUESA/CIANO no painel inferior do gráfico. Identifique se a linha está APONTANDO PARA CIMA ou PARA BAIXO nas últimas barras
-4. LEIA O INDICADOR MOMENTUM (Período 5): É outra linha TURQUESA/AZUL TURQUESA em outro painel do gráfico. Identifique se a linha está APONTANDO PARA CIMA ou PARA BAIXO nas últimas barras
+3. LEIA O CRONÔMETRO/TIMER: Leia o tempo restante da vela atual exibido no gráfico (ex: 00:45, 00:30, etc.)
+4. LEIA O INDICADOR WILLIAMS %R (Período 7): Linha TURQUESA/CIANO no painel inferior. Identifique se está APONTANDO PARA CIMA ou PARA BAIXO nas últimas barras
+5. LEIA O INDICADOR MOMENTUM (Período 5): Outra linha TURQUESA/AZUL TURQUESA em outro painel. Identifique se está APONTANDO PARA CIMA ou PARA BAIXO nas últimas barras
 
-**REGRA DOS INDICADORES (PRIORIDADE MÁXIMA):**
+**REGRA DOS INDICADORES (ÚNICA LÓGICA DE SINAL):**
 - Para COMPRA (BUY): Williams %R E Momentum DEVEM estar AMBOS apontando para CIMA
 - Para VENDA (SELL): Williams %R E Momentum DEVEM estar AMBOS apontando para BAIXO
-- Se os dois indicadores apontam para DIREÇÕES DIFERENTES → "NEUTRO" (conflito de indicadores)
-- Esta regra tem PRIORIDADE sobre todas as outras
+- Se os dois indicadores apontam para DIREÇÕES DIFERENTES → "NEUTRO"
+- Se não conseguir ler claramente algum indicador → "NEUTRO"
 
-**ESTRATÉGIA DIAMANTE (CONFIRMAÇÃO):**
-O Padrão Diamante é uma formação gráfica de REVERSÃO:
-1. FASE DE EXPANSÃO: Topos mais altos e fundos mais baixos (alargamento)
-2. FASE DE CONTRAÇÃO: Topos mais baixos e fundos mais altos (estreitamento)
-3. DIAMANTE DE TOPO (após alta) → SELL | DIAMANTE DE FUNDO (após baixa) → BUY
-4. O rompimento da borda confirma a direção
-
-**ANÁLISE ZIG ZAG (CONFIRMA):**
-1. Zig Zag ACIMA do preço (topo formado): velas tendem a DESCER → reforça SELL
-2. Zig Zag ABAIXO do preço (fundo formado): velas tendem a SUBIR → reforça BUY
-3. Identifique o ALVO: buscando SUPORTE (baixa) ou RESISTÊNCIA (alta)
-
-**FLUXO DE VELAS E VELA RAIZ:**
-1. Identifique a VELA RAIZ — a vela que originou o movimento atual
-2. Analise padrões: Martelo, Engolfo, Doji, Pin Bar, Estrela Cadente
-3. Avalie: CONTINUIDADE ou REVERSÃO?
-
-**REGRAS FINAIS DE DECISÃO:**
+**REGRAS DE COR:**
 - Modo ${modeText}
 - Se PADRÃO: Velas VERDES = BUY, Velas VERMELHAS = SELL
 - Se INVERTIDO: VERDE = SELL, VERMELHO = BUY
-- O sinal SÓ é gerado se: Williams %R + Momentum concordam na direção + Diamante/ZigZag confirmam
-- Se NÃO tiver certeza ou indicadores conflitantes → "NEUTRO"
-- Confiança acima de 80 APENAS quando TODOS os fatores concordam (indicadores + diamante + zigzag + velas)
+
+**CONFIANÇA:**
+- 80-100%: Ambos indicadores apontam claramente na mesma direção com força
+- 60-79%: Indicadores concordam mas com pouca inclinação
+- Abaixo de 60: Indicadores fracos ou quase laterais → prefira NEUTRO
 
 Responda APENAS com JSON válido no formato:
-{"recommendation": "BUY" ou "SELL" ou "NEUTRO", "confidence": número 0-100, "reason": "razão curta com indicadores + diamante", "trend": "direção Williams/Momentum, alvo do preço (suporte/resistência)", "asset": "símbolo do ativo lido na tela", "price": "preço atual lido na tela", "williams_direction": "UP ou DOWN ou UNCLEAR", "momentum_direction": "UP ou DOWN ou UNCLEAR"}`;
+{"recommendation": "BUY" ou "SELL" ou "NEUTRO", "confidence": número 0-100, "reason": "razão curta sobre direção dos indicadores", "trend": "direção Williams/Momentum e alvo do preço", "asset": "símbolo do ativo lido na tela", "price": "preço atual lido na tela", "williams_direction": "UP ou DOWN ou UNCLEAR", "momentum_direction": "UP ou DOWN ou UNCLEAR", "candle_timer": "tempo restante da vela lido na tela"}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",

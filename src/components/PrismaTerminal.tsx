@@ -73,7 +73,7 @@ const PrismaTerminal: React.FC = () => {
     const base64Image = canvas.toDataURL('image/jpeg', 0.8).split(',')[1];
 
     setIsAnalyzing(true);
-    addLog("Vela de 1M Detectada. Analisando nascimento...", "info");
+    addLog("Vela quase nascendo (58s). Capturando para análise...", "info");
 
     try {
       const { data, error } = await supabase.functions.invoke('analyze-chart', {
@@ -142,8 +142,9 @@ const PrismaTerminal: React.FC = () => {
         const seconds = now.getSeconds();
         const currentMinute = now.getMinutes();
 
-        if (seconds === 0 && lastAnalyzedMinute.current !== currentMinute) {
+        if (seconds === 58 && lastAnalyzedMinute.current !== currentMinute) {
           lastAnalyzedMinute.current = currentMinute;
+          addLog("Capturando em 58s — sinal pronto no nascimento!", "info");
           captureAndAnalyze();
         }
       }
