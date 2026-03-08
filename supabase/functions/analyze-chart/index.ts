@@ -109,6 +109,15 @@ Calcule um score baseado em pesos:
 - VENDA: Score composto ≥ 65 para SELL, com pelo menos 3 dos 4 fatores alinhados
 - NEUTRO: Score < 65 OU fatores conflitantes OU padrão de indecisão (Doji)
 
+**⚠️ FILTRO DE GAP OBRIGATÓRIO (CRÍTICO):**
+Observe a ÚLTIMA VELA (a mais recente, que acabou de nascer). Compare seu OPEN com o CLOSE da vela anterior:
+- **GAP UP (para fora):** Open da vela atual está ACIMA do High da vela anterior → há um espaço/pulo visível para cima entre as velas
+- **GAP DOWN (para fora):** Open da vela atual está ABAIXO do Low da vela anterior → há um espaço/pulo visível para baixo entre as velas
+- **GAP INTERNO:** Open da vela atual está significativamente diferente do Close da vela anterior (diferença > 50% do corpo da vela anterior), mesmo que dentro do range
+- Se QUALQUER tipo de GAP for detectado na vela atual → **OBRIGATORIAMENTE retorne NEUTRO** com reason explicando "GAP detectado - operação arriscada, preço pode reverter ou continuar de forma imprevisível"
+- Marque o campo "gap_detected" como true no JSON
+- Gaps causam movimentos erráticos onde o preço bate em suporte/resistência de forma imprevisível e vai contra a operação
+
 **CONTRA-TENDÊNCIA:** Se a tendência (LTA/LTB + topos/fundos) é claramente UP, NÃO dê sinal de SELL a menos que haja reversão MUITO forte (M formado + engulfing + rompimento LTA). E vice-versa.
 
 **REGRAS DE COR:**
