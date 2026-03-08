@@ -16,13 +16,12 @@ interface AnalysisResult {
   time: string;
   asset?: string;
   price?: string;
-  williams_direction?: string;
-  williams_zone?: string;
-  momentum_direction?: string;
-  momentum_position?: string;
   candle_pattern?: string;
   candle_sequence?: string;
   trend_direction?: string;
+  trend_line?: string;
+  chart_figure?: string;
+  tops_bottoms?: string;
   support_resistance?: string;
   factors_aligned?: number;
   result?: 'WIN' | 'LOSS' | null;
@@ -34,14 +33,49 @@ interface LogEntry {
   time: string;
 }
 
+const figureLabel: Record<string, string> = {
+  W: 'Fundo Duplo (W)',
+  M: 'Topo Duplo (M)',
+  V: 'Reversão V',
+  V_INV: 'Reversão V Invertido',
+  TRIANGLE_ASC: 'Triângulo Ascendente',
+  TRIANGLE_DESC: 'Triângulo Descendente',
+  TRIANGLE_SYM: 'Triângulo Simétrico',
+  OCO: 'Ombro-Cabeça-Ombro',
+  OCO_INV: 'OCO Invertido',
+  FLAG: 'Bandeira',
+  WEDGE_UP: 'Cunha Ascendente',
+  WEDGE_DOWN: 'Cunha Descendente',
+  DOUBLE_TOP: 'Topo Duplo',
+  DOUBLE_BOTTOM: 'Fundo Duplo',
+  TRIPLE_TOP: 'Topo Triplo',
+  TRIPLE_BOTTOM: 'Fundo Triplo',
+  NONE: '—',
+};
+
+const trendLineLabel: Record<string, string> = {
+  LTA_INTACT: '↗ LTA Intacta',
+  LTA_BROKEN: '⚠ LTA Rompida',
+  LTB_INTACT: '↘ LTB Intacta',
+  LTB_BROKEN: '⚠ LTB Rompida',
+  NO_CLEAR_LINE: '— Sem linha clara',
+};
+
+const topsBottomsLabel: Record<string, string> = {
+  HIGHER_HIGHS: '↑ Topos Ascendentes',
+  LOWER_LOWS: '↓ Fundos Descendentes',
+  SAME_LEVEL: '↔ Mesmo Nível',
+  DIVERGING: '◇ Convergindo',
+};
+
 const AnalyzingOverlay: React.FC = () => {
   const steps = [
-    "Lendo indicadores Williams %R e Momentum...",
-    "Analisando padrões de velas japonesas...",
-    "Calculando score composto de 5 fatores...",
-    "Verificando suporte/resistência...",
-    "Analisando tendência das últimas velas...",
-    "Gerando sinal com base em confluência...",
+    "Lendo padrões de velas japonesas (40+ padrões)...",
+    "Traçando LTA/LTB nas últimas 30 velas...",
+    "Identificando figuras gráficas (W, M, V, Triângulos)...",
+    "Analisando topos e fundos (HH/LL)...",
+    "Verificando suporte/resistência e rompimentos...",
+    "Calculando score composto de 4 fatores...",
   ];
   const [step, setStep] = useState(0);
 
@@ -129,7 +163,6 @@ const PrismaTerminal: React.FC = () => {
     setIsAnalyzing(true);
     addLog("⚡ Captura aos 58s — Análise profunda iniciada...", "info");
 
-    // Send last 10 history items for learning
     const winLossHistory = history
       .filter(h => h.result)
       .slice(0, 10)
@@ -155,7 +188,8 @@ const PrismaTerminal: React.FC = () => {
 
       if (result.recommendation !== 'HOLD' && result.recommendation !== 'NEUTRO') {
         setHistory(prev => [analysisWithTime, ...prev].slice(0, 30));
-        addLog(`🎯 SINAL: ${result.recommendation} | ${result.asset || '—'} | Score: ${result.composite_score || result.confidence}% | ${result.candle_pattern || ''} | Fatores: ${result.factors_aligned || '?'}/5`, "signal");
+        const fig = result.chart_figure && result.chart_figure !== 'NONE' ? ` | Fig: ${result.chart_figure}` : '';
+        addLog(`🎯 SINAL: ${result.recommendation} | ${result.asset || '—'} | Score: ${result.composite_score || result.confidence}% | ${result.candle_pattern || ''}${fig} | Fatores: ${result.factors_aligned || '?'}/4`, "signal");
 
         if (result.confidence >= 80) {
           speakSignal(result.recommendation);
@@ -181,7 +215,7 @@ const PrismaTerminal: React.FC = () => {
       if (videoRef.current) videoRef.current.srcObject = stream;
       streamRef.current = stream;
       setIsRunning(true);
-      addLog("✅ Conectado. Análise profunda ativa. Aguardando :58s", "info");
+      addLog("✅ Conectado. Análise Price Action ativa. Aguardando :58s", "info");
 
       stream.getVideoTracks()[0].onended = stopCapture;
     } catch {
@@ -236,7 +270,7 @@ const PrismaTerminal: React.FC = () => {
               <div className="flex items-center gap-2">
                 <h1 className="text-xl font-bold text-gradient-prisma">PRISMA IA</h1>
                 <span className="text-[10px] font-mono bg-primary/20 border border-primary/30 text-primary-foreground px-2 py-0.5 rounded-full">
-                  DEEP ANALYSIS
+                  PRICE ACTION
                 </span>
               </div>
             </div>
@@ -297,7 +331,7 @@ const PrismaTerminal: React.FC = () => {
                 </div>
                 <p className="text-foreground font-semibold mb-1">AGUARDANDO GRÁFICO 1M</p>
                 <p className="text-xs text-muted-foreground text-center max-w-xs">
-                  Conecte a janela do seu gráfico com Williams %R (7) e Momentum (5) adicionados.
+                  Conecte a janela do seu gráfico M1. Análise por Price Action puro — sem indicadores necessários.
                 </p>
               </div>
             )}
@@ -316,7 +350,7 @@ const PrismaTerminal: React.FC = () => {
             {[
               { label: 'Status', value: isRunning ? 'Ativo' : 'Offline', icon: Timer, color: 'text-prisma-blue' },
               { label: 'Modo Cor', value: isInverted ? 'Invertido' : 'Normal', icon: Eye, color: 'text-primary' },
-              { label: 'Engine', value: 'V5 DEEP', icon: Brain, color: 'text-prisma-cyan' },
+              { label: 'Engine', value: 'V6 PA', icon: Brain, color: 'text-prisma-cyan' },
               { label: 'Win Rate', value: winCount + lossCount > 0 ? `${winRate}%` : '—', icon: Target, color: winRate >= 70 ? 'text-prisma-green' : winRate >= 50 ? 'text-prisma-orange' : 'text-prisma-red' },
               { label: 'W/L', value: `${winCount}/${lossCount}`, icon: BarChart3, color: 'text-prisma-cyan' },
             ].map((stat, i) => (
@@ -338,7 +372,7 @@ const PrismaTerminal: React.FC = () => {
             <div className="flex items-center justify-between mb-3">
               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                 <Activity className="w-3 h-3" />
-                <span>Análise Profunda</span>
+                <span>Análise Price Action</span>
               </div>
               {lastAnalysis && (
                 <span className="text-[10px] font-mono text-muted-foreground bg-muted px-2 py-0.5 rounded">
@@ -385,7 +419,7 @@ const PrismaTerminal: React.FC = () => {
                     </span>
                     {lastAnalysis.factors_aligned !== undefined && (
                       <span className="text-[10px] font-mono text-muted-foreground">
-                        {lastAnalysis.factors_aligned}/5 fatores alinhados
+                        {lastAnalysis.factors_aligned}/4 fatores alinhados
                       </span>
                     )}
                   </div>
@@ -413,33 +447,7 @@ const PrismaTerminal: React.FC = () => {
                   </div>
                 )}
 
-                {/* Indicators */}
-                <div className="grid grid-cols-2 gap-2 mb-3">
-                  <div className="bg-muted/50 rounded-lg p-2 border border-border">
-                    <p className="text-[10px] text-muted-foreground mb-0.5">Williams %R (7)</p>
-                    <p className={`text-xs font-bold font-mono ${
-                      lastAnalysis.williams_direction === 'UP' ? 'text-prisma-green' : lastAnalysis.williams_direction === 'DOWN' ? 'text-prisma-red' : 'text-muted-foreground'
-                    }`}>
-                      {lastAnalysis.williams_direction === 'UP' ? '↑ SUBINDO' : lastAnalysis.williams_direction === 'DOWN' ? '↓ DESCENDO' : '— INDEFINIDO'}
-                    </p>
-                    {lastAnalysis.williams_zone && (
-                      <p className="text-[9px] text-muted-foreground font-mono mt-0.5">{lastAnalysis.williams_zone}</p>
-                    )}
-                  </div>
-                  <div className="bg-muted/50 rounded-lg p-2 border border-border">
-                    <p className="text-[10px] text-muted-foreground mb-0.5">Momentum (5)</p>
-                    <p className={`text-xs font-bold font-mono ${
-                      lastAnalysis.momentum_direction === 'UP' ? 'text-prisma-green' : lastAnalysis.momentum_direction === 'DOWN' ? 'text-prisma-red' : 'text-muted-foreground'
-                    }`}>
-                      {lastAnalysis.momentum_direction === 'UP' ? '↑ SUBINDO' : lastAnalysis.momentum_direction === 'DOWN' ? '↓ DESCENDO' : '— INDEFINIDO'}
-                    </p>
-                    {lastAnalysis.momentum_position && (
-                      <p className="text-[9px] text-muted-foreground font-mono mt-0.5">{lastAnalysis.momentum_position}</p>
-                    )}
-                  </div>
-                </div>
-
-                {/* Candle Pattern & Trend */}
+                {/* Candle Pattern & Chart Figure */}
                 <div className="grid grid-cols-2 gap-2 mb-3">
                   <div className="bg-muted/50 rounded-lg p-2 border border-border">
                     <p className="text-[10px] text-muted-foreground mb-0.5">Padrão de Vela</p>
@@ -451,7 +459,41 @@ const PrismaTerminal: React.FC = () => {
                     )}
                   </div>
                   <div className="bg-muted/50 rounded-lg p-2 border border-border">
-                    <p className="text-[10px] text-muted-foreground mb-0.5">Tendência</p>
+                    <p className="text-[10px] text-muted-foreground mb-0.5">Figura Gráfica</p>
+                    <p className={`text-xs font-bold font-mono ${
+                      lastAnalysis.chart_figure && lastAnalysis.chart_figure !== 'NONE' ? 'text-prisma-cyan' : 'text-muted-foreground'
+                    }`}>
+                      {lastAnalysis.chart_figure ? (figureLabel[lastAnalysis.chart_figure] || lastAnalysis.chart_figure) : '—'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Trend Line & Tops/Bottoms */}
+                <div className="grid grid-cols-2 gap-2 mb-3">
+                  <div className="bg-muted/50 rounded-lg p-2 border border-border">
+                    <p className="text-[10px] text-muted-foreground mb-0.5">Linha de Tendência</p>
+                    <p className={`text-xs font-bold font-mono ${
+                      lastAnalysis.trend_line?.includes('LTA') ? 'text-prisma-green' :
+                      lastAnalysis.trend_line?.includes('LTB') ? 'text-prisma-red' : 'text-muted-foreground'
+                    }`}>
+                      {lastAnalysis.trend_line ? (trendLineLabel[lastAnalysis.trend_line] || lastAnalysis.trend_line) : '—'}
+                    </p>
+                  </div>
+                  <div className="bg-muted/50 rounded-lg p-2 border border-border">
+                    <p className="text-[10px] text-muted-foreground mb-0.5">Topos & Fundos</p>
+                    <p className={`text-xs font-bold font-mono ${
+                      lastAnalysis.tops_bottoms === 'HIGHER_HIGHS' ? 'text-prisma-green' :
+                      lastAnalysis.tops_bottoms === 'LOWER_LOWS' ? 'text-prisma-red' : 'text-muted-foreground'
+                    }`}>
+                      {lastAnalysis.tops_bottoms ? (topsBottomsLabel[lastAnalysis.tops_bottoms] || lastAnalysis.tops_bottoms) : '—'}
+                    </p>
+                  </div>
+                </div>
+
+                {/* Trend & S/R */}
+                <div className="grid grid-cols-2 gap-2 mb-3">
+                  <div className="bg-muted/50 rounded-lg p-2 border border-border">
+                    <p className="text-[10px] text-muted-foreground mb-0.5">Tendência Geral</p>
                     <p className={`text-xs font-bold font-mono ${
                       lastAnalysis.trend_direction === 'UPTREND' ? 'text-prisma-green' :
                       lastAnalysis.trend_direction === 'DOWNTREND' ? 'text-prisma-red' : 'text-muted-foreground'
@@ -459,12 +501,18 @@ const PrismaTerminal: React.FC = () => {
                       {lastAnalysis.trend_direction === 'UPTREND' ? '↑ ALTA' :
                        lastAnalysis.trend_direction === 'DOWNTREND' ? '↓ BAIXA' : '↔ LATERAL'}
                     </p>
-                    {lastAnalysis.support_resistance && (
-                      <p className="text-[9px] text-muted-foreground font-mono mt-0.5">
-                        {lastAnalysis.support_resistance === 'NEAR_SUPPORT' ? 'Perto do Suporte' :
-                         lastAnalysis.support_resistance === 'NEAR_RESISTANCE' ? 'Perto da Resistência' : 'Meio do Range'}
-                      </p>
-                    )}
+                  </div>
+                  <div className="bg-muted/50 rounded-lg p-2 border border-border">
+                    <p className="text-[10px] text-muted-foreground mb-0.5">Suporte/Resistência</p>
+                    <p className={`text-xs font-bold font-mono ${
+                      lastAnalysis.support_resistance === 'NEAR_SUPPORT' || lastAnalysis.support_resistance === 'BREAKOUT_UP' ? 'text-prisma-green' :
+                      lastAnalysis.support_resistance === 'NEAR_RESISTANCE' || lastAnalysis.support_resistance === 'BREAKOUT_DOWN' ? 'text-prisma-red' : 'text-muted-foreground'
+                    }`}>
+                      {lastAnalysis.support_resistance === 'NEAR_SUPPORT' ? 'Perto do Suporte' :
+                       lastAnalysis.support_resistance === 'NEAR_RESISTANCE' ? 'Perto da Resistência' :
+                       lastAnalysis.support_resistance === 'BREAKOUT_UP' ? '🔼 Rompimento Alta' :
+                       lastAnalysis.support_resistance === 'BREAKOUT_DOWN' ? '🔽 Rompimento Baixa' : 'Meio do Range'}
+                    </p>
                   </div>
                 </div>
 
@@ -532,7 +580,7 @@ const PrismaTerminal: React.FC = () => {
                         {h.asset || '—'} <span className={h.recommendation === 'BUY' ? 'text-prisma-green' : 'text-prisma-red'}>{h.recommendation}</span>
                       </p>
                       <p className="text-[10px] text-muted-foreground font-mono">
-                        {h.time} · {h.composite_score || h.confidence}% · {h.candle_pattern && h.candle_pattern !== 'NONE' ? h.candle_pattern : ''} {h.factors_aligned !== undefined ? `${h.factors_aligned}/5` : ''}
+                        {h.time} · {h.composite_score || h.confidence}% · {h.chart_figure && h.chart_figure !== 'NONE' ? h.chart_figure + ' · ' : ''}{h.candle_pattern && h.candle_pattern !== 'NONE' ? h.candle_pattern : ''} {h.factors_aligned !== undefined ? `${h.factors_aligned}/4` : ''}
                       </p>
                     </div>
                   </div>

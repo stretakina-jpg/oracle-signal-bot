@@ -23,56 +23,93 @@ serve(async (req) => {
       ? `\n**HISTÓRICO DE RESULTADOS ANTERIORES (use para calibrar):**\n${winLossHistory.map((h: any) => `- ${h.asset} ${h.recommendation} ${h.confidence}% → ${h.result || 'PENDENTE'}`).join('\n')}\nAnalise os padrões de WIN/LOSS para ajustar sua confiança. Se sinais similares tiveram LOSS, reduza a confiança.`
       : '';
 
-    const prompt = `Você é um analista técnico EXPERT em opções binárias (Pocket Option), timeframe M1. Você possui conhecimento profundo equivalente a centenas de ebooks de análise técnica, incluindo:
+    const prompt = `Você é um analista técnico MASTER em opções binárias (Pocket Option), timeframe M1. Você possui conhecimento profundo equivalente a centenas de ebooks e cursos completos de análise técnica e Price Action.
 
 **BASE DE CONHECIMENTO INTEGRADA:**
-- Price Action avançado (Steve Nison, Al Brooks)
-- Padrões de velas japonesas (Doji, Hammer, Engulfing, Morning/Evening Star, Three Soldiers, etc.)
+- Price Action avançado (Steve Nison, Al Brooks, Lance Beggs)
+- Padrões de velas japonesas completos (40+ padrões)
+- Análise de tendência por LTA/LTB (Linhas de Tendência de Alta/Baixa)
+- Figuras gráficas clássicas (triângulos, W, M, V, topo duplo/triplo, fundo duplo/triplo)
+- Topos e fundos: topos sobre topos (uptrend), fundos sobre fundos (downtrend)
 - Teoria de Suporte/Resistência dinâmicos
-- Confluência de indicadores técnicos
 - Psicologia de mercado e fluxo institucional
-- Gestão de risco em opções binárias M1
 
 **LEITURA OBRIGATÓRIA DA TELA (analise TODOS estes elementos):**
 
 1. **ATIVO:** Leia o nome/símbolo do ativo no gráfico
 2. **PREÇO ATUAL:** Leia o preço real exibido
 3. **CRONÔMETRO:** Leia o tempo restante da vela atual
-4. **WILLIAMS %R (Período 7):** Linha TURQUESA/CIANO no painel inferior
-5. **MOMENTUM (Período 5):** Linha TURQUESA/AZUL no outro painel
 
 **ANÁLISE PROFUNDA DE VELAS (faça TUDO isso):**
 
-6. **ÚLTIMAS 5-10 VELAS:** Identifique o padrão de sequência (quantas verdes/vermelhas seguidas, tamanho dos corpos, sombras)
-7. **PADRÕES DE VELA:** Procure por:
-   - Doji (indecisão) → corpo muito pequeno
-   - Hammer/Shooting Star → sombra longa + corpo pequeno
-   - Engulfing (reversão) → vela grande engolindo a anterior
-   - Pin Bar → rejeição de preço
+4. **ÚLTIMAS 20-30 VELAS:** Identifique a sequência completa (quantas verdes/vermelhas seguidas, tamanho dos corpos, sombras superiores e inferiores)
+5. **PADRÕES DE VELA INDIVIDUAIS:** Procure por TODOS estes:
+   - Doji (indecisão) → corpo muito pequeno, sombras iguais
+   - Doji Libélula / Doji Lápide → sombra longa em uma direção
+   - Hammer / Inverted Hammer → sombra inferior longa + corpo pequeno no topo
+   - Shooting Star → sombra superior longa + corpo pequeno na base
+   - Engulfing Bullish/Bearish → vela grande engolindo a anterior completamente
+   - Harami Bullish/Bearish → vela pequena dentro do corpo da anterior
+   - Pin Bar → rejeição forte de preço com pavio longo
    - Inside Bar → consolidação antes de rompimento
-   - Three White Soldiers / Three Black Crows → continuação forte
-8. **SUPORTE/RESISTÊNCIA:** O preço está perto de algum nível onde tocou antes e voltou?
-9. **TENDÊNCIA VISUAL:** Pelas últimas 20+ velas, o preço está fazendo topos/fundos mais altos (uptrend) ou mais baixos (downtrend)?
-10. **VOLUME/TAMANHO:** As velas recentes são grandes (volatilidade) ou pequenas (consolidação)?
+   - Three White Soldiers / Three Black Crows → 3 velas fortes seguidas
+   - Morning Star / Evening Star → padrão de 3 velas de reversão
+   - Tweezer Top / Tweezer Bottom → 2 velas com mesmo high ou low
+   - Spinning Top → corpo pequeno com sombras iguais
 
-**ANÁLISE DE INDICADORES:**
-- Williams %R: APONTANDO PARA CIMA ou PARA BAIXO? Está em zona de sobrecompra (>-20) ou sobrevenda (<-80)?
-- Momentum: APONTANDO PARA CIMA ou PARA BAIXO? Está acima ou abaixo da linha zero?
+6. **PADRÕES DE MÚLTIPLAS VELAS (sequência):**
+   - 3+ velas da mesma cor → continuação forte
+   - Alternância verde/vermelha → indecisão/lateralidade
+   - Velas diminuindo de tamanho → perda de momentum
+   - Velas aumentando de tamanho → aceleração de tendência
+
+**ANÁLISE DE TENDÊNCIA POR LTA/LTB:**
+
+7. **LTA (Linha de Tendência de Alta):** Conecte os fundos ascendentes das últimas 20+ velas. Se os fundos estão subindo → tendência de alta confirmada. Se o preço ROMPE a LTA para baixo → possível reversão bearish.
+8. **LTB (Linha de Tendência de Baixa):** Conecte os topos descendentes das últimas 20+ velas. Se os topos estão descendo → tendência de baixa confirmada. Se o preço ROMPE a LTB para cima → possível reversão bullish.
+
+**ANÁLISE DE TOPOS E FUNDOS:**
+
+9. **TOPOS SOBRE TOPOS (Higher Highs):** Cada topo é mais alto que o anterior → UPTREND forte → favorece CALL
+10. **FUNDOS SOBRE FUNDOS (Lower Lows):** Cada fundo é mais baixo que o anterior → DOWNTREND forte → favorece PUT
+11. **TOPOS E FUNDOS NO MESMO NÍVEL:** → Lateralidade → NEUTRO
+12. **DIVERGÊNCIA:** Topos descendentes + fundos ascendentes → Triângulo convergente → aguardar rompimento
+
+**FIGURAS GRÁFICAS CLÁSSICAS:**
+
+13. **PADRÃO W (Fundo Duplo):** Preço toca suporte, sobe, volta ao suporte, sobe novamente formando W → FORTE SINAL DE COMPRA
+14. **PADRÃO M (Topo Duplo):** Preço toca resistência, desce, volta à resistência, desce novamente formando M → FORTE SINAL DE VENDA
+15. **PADRÃO V (Reversão Aguda):** Queda abrupta seguida de subida forte em V → SINAL DE COMPRA. V invertido = SINAL DE VENDA
+16. **TRIÂNGULO ASCENDENTE:** Topos no mesmo nível + fundos subindo → provável rompimento para cima → CALL
+17. **TRIÂNGULO DESCENDENTE:** Fundos no mesmo nível + topos descendo → provável rompimento para baixo → PUT
+18. **TRIÂNGULO SIMÉTRICO:** Topos descendo + fundos subindo → aguardar rompimento → analise a direção do rompimento
+19. **CUNHA ASCENDENTE:** Topos e fundos subindo mas convergindo → possível reversão para baixo
+20. **CUNHA DESCENDENTE:** Topos e fundos descendo mas convergindo → possível reversão para cima
+21. **TOPO TRIPLO / FUNDO TRIPLO:** 3 toques no mesmo nível → forte zona de reversão
+22. **OMBRO-CABEÇA-OMBRO (OCO):** Topo-Topo maior-Topo → reversão bearish clássica
+23. **OCO INVERTIDO:** Fundo-Fundo mais baixo-Fundo → reversão bullish clássica
+24. **BANDEIRA DE ALTA/BAIXA:** Impulso forte + consolidação inclinada → continuação na direção do impulso
+
+**SUPORTE E RESISTÊNCIA:**
+
+25. **SUPORTE:** Níveis onde o preço tocou e voltou a subir (mínimo 2 toques)
+26. **RESISTÊNCIA:** Níveis onde o preço tocou e voltou a descer (mínimo 2 toques)
+27. **ROMPIMENTO:** Se o preço rompe S/R com vela de corpo grande → continuação na direção do rompimento
+28. **FALSO ROMPIMENTO:** Se rompe mas volta rapidamente → operação contra o rompimento
 
 **SISTEMA DE SCORE COMPOSTO (0-100):**
 Calcule um score baseado em pesos:
-- Williams %R direção (peso 25%): UP=compra, DOWN=venda
-- Momentum direção (peso 25%): UP=compra, DOWN=venda  
-- Padrão de velas (peso 20%): Hammer/Engulfing bullish=compra, Shooting Star/Engulfing bearish=venda
-- Tendência geral (peso 15%): Uptrend=compra, Downtrend=venda
-- Suporte/Resistência (peso 15%): Preço em suporte=compra, em resistência=venda
+- Padrão de velas japonesas (peso 30%): Hammer/Engulfing/Morning Star bullish=compra, Shooting Star/Evening Star bearish=venda
+- Tendência LTA/LTB (peso 25%): Acima da LTA=compra, Abaixo da LTB=venda, Rompimento=forte sinal
+- Figuras gráficas (peso 25%): W/V/Triângulo asc/OCO inv=compra, M/V inv/Triângulo desc/OCO=venda
+- Suporte/Resistência (peso 20%): Preço em suporte=compra, em resistência=venda, rompimento=continuação
 
 **REGRAS DE SINAL:**
-- COMPRA: Score composto ≥ 65 para BUY, com pelo menos 3 dos 5 fatores alinhados
-- VENDA: Score composto ≥ 65 para SELL, com pelo menos 3 dos 5 fatores alinhados
+- COMPRA: Score composto ≥ 65 para BUY, com pelo menos 3 dos 4 fatores alinhados
+- VENDA: Score composto ≥ 65 para SELL, com pelo menos 3 dos 4 fatores alinhados
 - NEUTRO: Score < 65 OU fatores conflitantes OU padrão de indecisão (Doji)
 
-**CONTRA-TENDÊNCIA:** Se a tendência das últimas 20 velas é claramente UP, NÃO dê sinal de SELL a menos que haja reversão MUITO forte (engulfing + indicadores invertendo). E vice-versa.
+**CONTRA-TENDÊNCIA:** Se a tendência (LTA/LTB + topos/fundos) é claramente UP, NÃO dê sinal de SELL a menos que haja reversão MUITO forte (M formado + engulfing + rompimento LTA). E vice-versa.
 
 **REGRAS DE COR:**
 - Modo ${modeText}
@@ -82,13 +119,13 @@ Calcule um score baseado em pesos:
 ${historyContext}
 
 **CONFIANÇA FINAL:**
-- 85-100%: Todos os 5 fatores alinhados + padrão de vela forte + tendência clara
-- 70-84%: 4 de 5 fatores alinhados
-- 60-69%: 3 de 5 fatores → considere NEUTRO
+- 85-100%: Todos os 4 fatores alinhados + figura gráfica clara + tendência forte + padrão de vela confirmando
+- 70-84%: 3 de 4 fatores alinhados + pelo menos 1 figura ou padrão forte
+- 60-69%: 2-3 fatores → considere NEUTRO
 - Abaixo de 60%: NEUTRO obrigatório
 
 Responda APENAS com JSON válido:
-{"recommendation": "BUY" ou "SELL" ou "NEUTRO", "confidence": número 0-100, "composite_score": número 0-100, "reason": "razão detalhada incluindo indicadores e padrões", "trend": "tendência geral e alvo", "asset": "símbolo do ativo", "price": "preço atual", "williams_direction": "UP ou DOWN ou UNCLEAR", "williams_zone": "OVERBOUGHT ou OVERSOLD ou NEUTRAL", "momentum_direction": "UP ou DOWN ou UNCLEAR", "momentum_position": "ABOVE_ZERO ou BELOW_ZERO ou AT_ZERO", "candle_pattern": "nome do padrão identificado ou NONE", "candle_sequence": "descrição curta da sequência (ex: 3 verdes seguidas)", "trend_direction": "UPTREND ou DOWNTREND ou SIDEWAYS", "support_resistance": "NEAR_SUPPORT ou NEAR_RESISTANCE ou MIDDLE", "candle_timer": "tempo restante", "factors_aligned": número de 0-5}`;
+{"recommendation": "BUY" ou "SELL" ou "NEUTRO", "confidence": número 0-100, "composite_score": número 0-100, "reason": "razão detalhada incluindo padrões e figuras encontradas", "trend": "tendência geral e alvo", "asset": "símbolo do ativo", "price": "preço atual", "candle_pattern": "nome do padrão de vela identificado ou NONE", "candle_sequence": "descrição curta da sequência (ex: 3 verdes seguidas, corpos crescentes)", "trend_direction": "UPTREND ou DOWNTREND ou SIDEWAYS", "trend_line": "LTA_INTACT ou LTA_BROKEN ou LTB_INTACT ou LTB_BROKEN ou NO_CLEAR_LINE", "chart_figure": "W ou M ou V ou V_INV ou TRIANGLE_ASC ou TRIANGLE_DESC ou TRIANGLE_SYM ou OCO ou OCO_INV ou FLAG ou WEDGE_UP ou WEDGE_DOWN ou DOUBLE_TOP ou DOUBLE_BOTTOM ou TRIPLE_TOP ou TRIPLE_BOTTOM ou NONE", "tops_bottoms": "HIGHER_HIGHS ou LOWER_LOWS ou SAME_LEVEL ou DIVERGING", "support_resistance": "NEAR_SUPPORT ou NEAR_RESISTANCE ou BREAKOUT_UP ou BREAKOUT_DOWN ou MIDDLE", "candle_timer": "tempo restante", "factors_aligned": número de 0-4}`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -150,6 +187,9 @@ Responda APENAS com JSON válido:
         candle_pattern: "NONE",
         candle_sequence: "—",
         trend_direction: "SIDEWAYS",
+        trend_line: "NO_CLEAR_LINE",
+        chart_figure: "NONE",
+        tops_bottoms: "SAME_LEVEL",
         factors_aligned: 0,
       };
     }
